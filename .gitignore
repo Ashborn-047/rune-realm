@@ -1,0 +1,14 @@
+node_modules
+dist
+.vscode
+.DS_Store
+*.log
+coverage
+.idea
+.env
+.env.*
+!.env.example
+*.local
+*.tmp
+*.swp
+package-lock.json.bak
