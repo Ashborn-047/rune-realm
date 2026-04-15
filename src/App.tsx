@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { gsap } from 'gsap';
 import { BookOpen, Sparkles, ChevronRight, PenTool, Flame, Leaf, Wind, Droplets, Snowflake } from 'lucide-react';
@@ -648,6 +648,19 @@ const RuneDetail = ({ rune, onBack, theme }) => {
   const runeRef = useRef(null);
   const infoRef = useRef(null);
   const [burst, setBurst] = useState(null);
+  const floatingRunes = useMemo(
+    () =>
+      Array.from({ length: isMobile ? 12 : 22 }, (_, i) => ({
+        char: UNICODE_RUNES[(i * 7 + rune.name.length) % UNICODE_RUNES.length],
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        size: `${Math.random() * (isMobile ? 16 : 22) + (isMobile ? 12 : 14)}px`,
+        duration: `${Math.random() * 8 + 8}s`,
+        delay: `${Math.random() * 4}s`,
+        opacity: Math.random() * 0.14 + 0.06
+      })),
+    [isMobile, rune.name]
+  );
 
   useEffect(() => {
     const tl = gsap.timeline();
@@ -693,6 +706,27 @@ const RuneDetail = ({ rune, onBack, theme }) => {
       alignItems:'center', justifyContent:'center',
       padding: isMobile ? '1rem' : '2rem', overflowY:'auto'
     }}>
+      <div style={{ position:'absolute', inset:0, pointerEvents:'none', overflow:'hidden' }}>
+        {floatingRunes.map((fr, idx) => (
+          <span
+            key={`${rune.name}-${idx}`}
+            style={{
+              position:'absolute',
+              left: fr.left,
+              top: fr.top,
+              color: t.accentGlow,
+              opacity: fr.opacity,
+              fontFamily:'serif',
+              fontSize: fr.size,
+              textShadow:`0 0 18px ${t.accent}66`,
+              animation:`float-gentle ${fr.duration} ease-in-out ${fr.delay} infinite`
+            }}
+          >
+            {fr.char}
+          </span>
+        ))}
+      </div>
+
       {burst && <ParticleBurst x={burst.x} y={burst.y} color={t.accentGlow} onDone={() => setBurst(null)} />}
 
       <button onClick={handleBack} style={{
